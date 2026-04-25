@@ -1,0 +1,113 @@
+{
+  "workflows": [
+    {
+      "id": "192dc834-22ec-4e6b-b7e7-edd7f6592f39",
+      "name": "My first workflow",
+      "steps": [
+        {
+          "block": "txt_to_pdf.convert",
+          "config": {
+            "title": "Untitled",
+            "author": ""
+          }
+        },
+        {
+          "block": "script_writer.generate",
+          "config": {
+            "prompt": "Write a 2 minute script about our topic.",
+            "language": "en"
+          }
+        },
+        {
+          "block": "scene_images.generate",
+          "config": {
+            "variant": "Classic Fast",
+            "images_per_scene": 1,
+            "output_folder": ""
+          }
+        },
+        {
+          "block": "sound_waves.render",
+          "config": {
+            "style": "sticks",
+            "opacity_pct": 85,
+            "bg_opacity_pct": 20
+          }
+        },
+        {
+          "block": "sound_waves.render",
+          "config": {
+            "style": "sticks",
+            "opacity_pct": 85,
+            "bg_opacity_pct": 20
+          }
+        },
+        {
+          "block": "sound_waves.render",
+          "config": {
+            "style": "sticks",
+            "opacity_pct": 85,
+            "bg_opacity_pct": 20
+          }
+        },
+        {
+          "block": "sound_waves.render",
+          "config": {
+            "style": "sticks",
+            "opacity_pct": 85,
+            "bg_opacity_pct": 20
+          }
+        },
+        {
+          "block": "sound_waves.render",
+          "config": {
+            "style": "sticks",
+            "opacity_pct": 85,
+            "bg_opacity_pct": 20
+          }
+        },
+        {
+          "block": "sound_waves.render",
+          "config": {
+            "style": "sticks",
+            "opacity_pct": 85,
+            "bg_opacity_pct": 20
+          }
+        },
+        {
+          "block": "sound_waves.render",
+          "config": {
+            "style": "sticks",
+            "opacity_pct": 85,
+            "bg_opacity_pct": 20
+          }
+        },
+        {
+          "block": "sound_waves.render",
+          "config": {
+            "style": "sticks",
+            "opacity_pct": 85,
+            "bg_opacity_pct": 20
+          }
+        },
+        {
+          "block": "sound_waves.render",
+          "config": {
+            "style": "sticks",
+            "opacity_pct": 85,
+            "bg_opacity_pct": 20
+          }
+        },
+        {
+          "block": "sound_waves.render",
+          "config": {
+            "style": "sticks",
+            "opacity_pct": 85,
+            "bg_opacity_pct": 20
+          }
+        }
+      ],
+      "meta": {}
+    }
+  ]
+}

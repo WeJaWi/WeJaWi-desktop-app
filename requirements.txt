@@ -1,0 +1,7 @@
+PyQt5>=5.15
+PyQtWebEngine>=5.15
+pyautogui>=0.9
+odfpy>=1.4.1
+requests>=2.31.0
+faster-whisper>=1.0
+mlx-whisper; sys_platform == 'darwin' and platform_machine == 'arm64'

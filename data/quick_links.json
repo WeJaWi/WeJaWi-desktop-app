@@ -1,0 +1,29 @@
+{
+  "links": [
+    {
+      "title": "Google",
+      "url": "https://www.google.com",
+      "color": "#4285F4"
+    },
+    {
+      "title": "YouTube",
+      "url": "https://www.youtube.com",
+      "color": "#FF3D00"
+    },
+    {
+      "title": "X / Twitter",
+      "url": "https://twitter.com",
+      "color": "#111111"
+    },
+    {
+      "title": "Reddit",
+      "url": "https://www.reddit.com",
+      "color": "#FF4500"
+    },
+    {
+      "title": "GitHub",
+      "url": "https://github.com",
+      "color": "#24292e"
+    }
+  ]
+}

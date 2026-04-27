@@ -261,8 +261,8 @@ class FootagePreviewPane(QtWidgets.QFrame):
         controls.addWidget(self.play_btn)
         controls.addWidget(self.stop_btn)
         controls.addStretch(1)
-        self.open_btn = QtWidgets.QPushButton("Open in browser")
-        self.copy_btn = QtWidgets.QPushButton("Copy media URL")
+        self.open_btn = QtWidgets.QPushButton("Open URL")
+        self.copy_btn = QtWidgets.QPushButton("Copy URL")
         controls.addWidget(self.open_btn)
         controls.addWidget(self.copy_btn)
         root.addLayout(controls)
@@ -639,6 +639,7 @@ class StockTab(QtWidgets.QWidget):
     def _manage_keys(self):
         dlg = KeysDialog(self.keys, parent=self)
         dlg.exec_()
+        self._providers_cache.clear()
 
     def _provider(self, name: str):
         if name in self._providers_cache:
@@ -777,7 +778,7 @@ class StockTab(QtWidgets.QWidget):
 
         threading.Thread(target=run, daemon=True).start()
 
-class SocialTab(QtWidgets.QWidget):
+class _SocialTabLegacy(QtWidgets.QWidget):
     def __init__(self, keys: KeyStore):
         super().__init__()
         self.keys = keys
@@ -1078,79 +1079,73 @@ class BetterSocialTab(QtWidgets.QWidget):
         self.preview.clear()
         self._set_loading(True)
         self._set_status(f'Searching {plat}...')
-        try:
-            if plat == 'YouTube':
-                key = self.keys.get('YOUTUBE_API_KEY')
-                items: List[MediaItem] = []
-                if key:
-                    try:
-                        items = YouTubeSearchProvider(key).search(q, max_results=20)
-                    except Exception as exc:
-                        items = []
-                        self._set_status(f'YouTube API error: {exc}')
-                if not items:
-                    if ytdlp is None:
-                        self._set_status('No YOUTUBE_API_KEY and yt-dlp not installed. Cannot search.')
-                        return
-                    try:
-                        items = self._yt_dlp_search(f'ytsearch20:{q}')
-                    except Exception as exc:
-                        self._set_status(f'yt-dlp search failed: {exc}')
-                        return
-                for media in items:
-                    label = f"{media.title} - {media.author}" if media.author else media.title
-                    li = QtWidgets.QListWidgetItem(label)
-                    li.setData(QtCore.Qt.UserRole, media)
-                    self.results.addItem(li)
-                if items:
-                    self.results.setCurrentRow(0)
-                self._set_status(f'Found {len(items)} result(s) on YouTube.')
 
-            elif plat == 'TikTok':
-                url = 'https://www.tiktok.com/search?q=' + requests.utils.quote(q)
-                webbrowser.open(url)
-                media = MediaItem(
-                    id=url,
-                    title='TikTok search',
-                    author='',
-                    duration=None,
-                    width=None,
-                    height=None,
-                    thumb_url='',
-                    media_url=url,
-                    page_url=url,
-                    license=None,
-                    extra={'source': 'tiktok-search'},
-                )
-                li = QtWidgets.QListWidgetItem('Opened TikTok search: ' + q)
-                li.setData(QtCore.Qt.UserRole, media)
-                self.results.addItem(li)
-                self.results.setCurrentRow(0)
-                self._set_status('Opened TikTok search in your browser. Copy a post URL to download with yt-dlp.')
-
-            elif plat == 'Instagram':
-                url = 'https://www.instagram.com/explore/tags/{}/'.format(requests.utils.quote(q.replace(' ', '')))
-                webbrowser.open(url)
-                media = MediaItem(
-                    id=url,
-                    title='Instagram hashtag',
-                    author='',
-                    duration=None,
-                    width=None,
-                    height=None,
-                    thumb_url='',
-                    media_url=url,
-                    page_url=url,
-                    license=None,
-                    extra={'source': 'instagram-search'},
-                )
-                li = QtWidgets.QListWidgetItem('Opened Instagram hashtag: #' + q.replace(' ', ''))
-                li.setData(QtCore.Qt.UserRole, media)
-                self.results.addItem(li)
-                self.results.setCurrentRow(0)
-                self._set_status('Opened Instagram in your browser. Copy post URLs for yt-dlp.')
-        finally:
+        if plat == 'TikTok':
+            url = 'https://www.tiktok.com/search?q=' + requests.utils.quote(q)
+            webbrowser.open(url)
+            media = MediaItem(id=url, title='TikTok search', author='', duration=None,
+                              width=None, height=None, thumb_url='', media_url=url,
+                              page_url=url, license=None, extra={'source': 'tiktok-search'})
+            li = QtWidgets.QListWidgetItem('Opened TikTok search: ' + q)
+            li.setData(QtCore.Qt.UserRole, media)
+            self.results.addItem(li)
+            self.results.setCurrentRow(0)
+            self._set_status('Opened TikTok search in your browser. Copy a post URL to download with yt-dlp.')
             self._set_loading(False)
+            return
+
+        if plat == 'Instagram':
+            url = 'https://www.instagram.com/explore/tags/{}/'.format(requests.utils.quote(q.replace(' ', '')))
+            webbrowser.open(url)
+            media = MediaItem(id=url, title='Instagram hashtag', author='', duration=None,
+                              width=None, height=None, thumb_url='', media_url=url,
+                              page_url=url, license=None, extra={'source': 'instagram-search'})
+            li = QtWidgets.QListWidgetItem('Opened Instagram hashtag: #' + q.replace(' ', ''))
+            li.setData(QtCore.Qt.UserRole, media)
+            self.results.addItem(li)
+            self.results.setCurrentRow(0)
+            self._set_status('Opened Instagram in your browser. Copy post URLs for yt-dlp.')
+            self._set_loading(False)
+            return
+
+        def _populate(items: List[MediaItem]) -> None:
+            self.results.clear()
+            for media in items:
+                label = f"{media.title} - {media.author}" if media.author else media.title
+                li = QtWidgets.QListWidgetItem(label)
+                li.setData(QtCore.Qt.UserRole, media)
+                self.results.addItem(li)
+            if items:
+                self.results.setCurrentRow(0)
+            self._set_status(f'Found {len(items)} result(s) on YouTube.')
+            self._set_loading(False)
+
+        def run() -> None:
+            key = self.keys.get('YOUTUBE_API_KEY')
+            items: List[MediaItem] = []
+            if key:
+                try:
+                    items = YouTubeSearchProvider(key).search(q, max_results=20)
+                except Exception as exc:
+                    QtCore.QTimer.singleShot(0, lambda: self._set_status(f'YouTube API error: {exc}'))
+            if not items:
+                if ytdlp is None:
+                    QtCore.QTimer.singleShot(0, lambda: (
+                        self._set_status('No YOUTUBE_API_KEY and yt-dlp not installed. Cannot search.'),
+                        self._set_loading(False),
+                    ))
+                    return
+                try:
+                    items = self._yt_dlp_search(f'ytsearch20:{q}')
+                except Exception as exc:
+                    QtCore.QTimer.singleShot(0, lambda: (
+                        self._set_status(f'yt-dlp search failed: {exc}'),
+                        self._set_loading(False),
+                    ))
+                    return
+            QtCore.QTimer.singleShot(0, lambda: _populate(items))
+
+        threading.Thread(target=run, daemon=True).start()
 
     def _yt_dlp_search(self, query: str) -> List[MediaItem]:
         out: List[MediaItem] = []
@@ -1271,7 +1266,7 @@ class FootagePage(QtWidgets.QWidget):
 
     def _build_ui(self):
         self.tabs = QtWidgets.QTabWidget()
-        self.tabs.setDocumentMode(True)
+        self.tabs.setDocumentMode(False)
         self.stock = StockTab(self.keys)
         self.social = BetterSocialTab(self.keys)
         self.tabs.addTab(self.stock, 'Stock Sites')

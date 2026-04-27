@@ -403,11 +403,13 @@ class MotionGraphicsPage(QtWidgets.QWidget):
         g1 = QtWidgets.QGroupBox("1) Content source")
         v1 = QtWidgets.QVBoxLayout(g1)
         self.tabs = QtWidgets.QTabWidget()
+        self.tabs.setMinimumHeight(210)
 
         # Tab A: Script text
         tab_script = QtWidgets.QWidget()
         tv = QtWidgets.QVBoxLayout(tab_script)
-        tv.setContentsMargins(6, 6, 6, 6)
+        tv.setContentsMargins(8, 8, 8, 8)
+        tv.setSpacing(8)
         self.script_edit = QtWidgets.QPlainTextEdit()
         self.script_edit.setPlaceholderText(
             "Paste your script here…\n\nEach group of words becomes one animated caption card."
@@ -418,6 +420,7 @@ class MotionGraphicsPage(QtWidgets.QWidget):
         self.words_spin = QtWidgets.QSpinBox()
         self.words_spin.setRange(3, 20)
         self.words_spin.setValue(8)
+        self.words_spin.setFixedWidth(64)
         words_row.addWidget(self.words_spin)
         words_row.addStretch(1)
         tv.addWidget(self.script_edit, 1)
@@ -458,7 +461,6 @@ class MotionGraphicsPage(QtWidgets.QWidget):
         audio_top.addWidget(btn_audio)
         va.addLayout(audio_top)
 
-        tts_row = QtWidgets.QHBoxLayout()
         self.tts_voice = QtWidgets.QComboBox()
         for v in ["af_nova", "af_bella", "am_adam", "bf_emma", "bm_daniel"]:
             self.tts_voice.addItem(v)
@@ -466,13 +468,19 @@ class MotionGraphicsPage(QtWidgets.QWidget):
         self.tts_speed.setRange(0.5, 2.0)
         self.tts_speed.setSingleStep(0.1)
         self.tts_speed.setValue(1.0)
-        self.btn_tts = QtWidgets.QPushButton("Generate TTS narration")
-        self.btn_tts.setToolTip("Uses Hyperframes' built-in Kokoro TTS — no API key needed")
+        self.tts_speed.setFixedWidth(72)
+        self.btn_tts = QtWidgets.QPushButton("Generate TTS")
+        self.btn_tts.setToolTip("Generate TTS narration — uses Hyperframes' built-in Kokoro TTS (no API key needed)")
         self.btn_tts.clicked.connect(self._on_tts)
+
+        tts_row = QtWidgets.QHBoxLayout()
+        tts_row.setSpacing(8)
         tts_row.addWidget(QtWidgets.QLabel("Voice:"))
         tts_row.addWidget(self.tts_voice)
+        tts_row.addSpacing(8)
         tts_row.addWidget(QtWidgets.QLabel("Speed:"))
         tts_row.addWidget(self.tts_speed)
+        tts_row.addStretch(1)
         tts_row.addWidget(self.btn_tts)
         va.addLayout(tts_row)
         left.addWidget(g_audio)
@@ -547,11 +555,15 @@ class MotionGraphicsPage(QtWidgets.QWidget):
 
         # Render controls
         render_row = QtWidgets.QHBoxLayout()
+        render_row.setSpacing(8)
         self.btn_preview = QtWidgets.QPushButton("Preview segments")
-        self.btn_preview.clicked.connect(self._on_preview_segments)
+        self.btn_preview.setMinimumHeight(36)
+        self.btn_preview.setMinimumWidth(140)
         self.btn_render  = QtWidgets.QPushButton("Generate video ✨")
-        self.btn_render.setMinimumHeight(38)
+        self.btn_render.setMinimumHeight(36)
+        self.btn_render.setMinimumWidth(150)
         self.btn_cancel  = QtWidgets.QPushButton("Cancel")
+        self.btn_cancel.setMinimumHeight(36)
         self.btn_cancel.setEnabled(False)
         self.btn_preview.clicked.connect(self._on_preview_segments)
         self.btn_render.clicked.connect(self._on_render)
